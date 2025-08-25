@@ -1,4 +1,3 @@
-
 import './App.css'
 import { useReducer, useRef, createContext, useEffect, useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
@@ -7,29 +6,11 @@ import Edit from './pages/Edit'
 import Home from './pages/Home'
 import Notfound from './pages/Notfound'
 import New from './pages/New'
-import useDiary from './hook/useDiary'
 
-
-const mockData = [
-  {
-    id: 1,
-    createdDate: new Date("2025-08-17").getTime(),
-    emotionId: 1,
-    content: "1번 일기 내용"
-  },
-  {
-    id: 2,
-    createdDate: new Date("2025-08-05").getTime(),
-    emotionId: 2,
-    content: "2번 일기 내용"
-  },
-  {
-    id: 3,
-    createdDate: new Date("2025-08-01").getTime(),
-    emotionId: 4,
-    content: "3번 일기 내용"
-  }
-]
+// Context 추가
+export const DiaryStateContext = createContext()
+export const DiaryDispatchContext = createContext()
+export const ThemeContext = createContext()
 
 function reducer(state, action) {
   let nextState;
@@ -42,8 +23,8 @@ function reducer(state, action) {
       break;
     case "UPDATE":
       nextState = state.map((item) =>
-        String(item.id) === String(action.data.id) ?
-          action.data
+        String(item.id) === String(action.data.id)
+          ? action.data
           : item
       )
       break;
@@ -56,23 +37,27 @@ function reducer(state, action) {
       return state
   }
   localStorage.setItem('diary', JSON.stringify(nextState))
-
   return nextState
-
 }
 
-export const DiaryStateContext = createContext()
-export const DiaryDispatchContext = createContext()
 function App() {
-
   const [data, dispatch] = useReducer(reducer, [])
   const idRef = useRef(0)
   const [loading, setLoading] = useState(true)
 
+  // ✅ 다크/라이트 모드 상태
+  const [theme, setTheme] = useState("light")
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"))
+  }
+
+  // ✅ body에 theme 클래스 적용
   useEffect(() => {
+    document.body.className = theme;
+  }, [theme]);
 
+  useEffect(() => {
     const storedData = localStorage.getItem('diary')
-
     if (!storedData) {
       localStorage.setItem('diary', JSON.stringify([]))
       setLoading(false)
@@ -80,7 +65,6 @@ function App() {
     }
 
     let parsed = []
-
     try {
       parsed = JSON.parse(storedData)
     } catch {
@@ -99,7 +83,6 @@ function App() {
         maxId = item.id
       }
     })
-
     idRef.current = maxId + 1
 
     dispatch({
@@ -108,11 +91,9 @@ function App() {
     })
 
     setLoading(false)
-
   }, [])
 
   const onCreate = (createdDate, emotionId, content) => {
-
     dispatch({
       type: "CREATE",
       data: {
@@ -134,26 +115,31 @@ function App() {
       }
     })
   }
-
   const onDelete = (id) => {
     dispatch({
       type: "DELETE",
       id
     })
   }
+
   if (loading) {
     return <div>데이터를 불러오는 중입니다.</div>
   }
+
   return (
     <DiaryStateContext.Provider value={data}>
       <DiaryDispatchContext.Provider value={{ onCreate, onUpdate, onDelete }}>
-        <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/new' element={<New />} />
-          <Route path='/edit/:id' element={<Edit />} />
-          <Route path='/diary/:id' element={<Diary />} />
-          <Route path='*' element={<Notfound />} />
-        </Routes>
+        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+          <div className={`App ${theme}`}>
+            <Routes>
+              <Route path='/' element={<Home />} />
+              <Route path='/new' element={<New />} />
+              <Route path='/edit/:id' element={<Edit />} />
+              <Route path='/diary/:id' element={<Diary />} />
+              <Route path='*' element={<Notfound />} />
+            </Routes>
+          </div>
+        </ThemeContext.Provider>
       </DiaryDispatchContext.Provider>
     </DiaryStateContext.Provider>
   )

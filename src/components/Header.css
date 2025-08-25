@@ -1,15 +1,37 @@
 .Header {
-    display: flex;
-    align-items: center;
-    padding: 20px 0;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  padding: 20px 0;
+  justify-content: space-between;
+  position: relative;
 }
+
 .header_center {
-    font-size: 25px;
-    text-transform: capitalize;
-    /* width: 50%; */
+  font-size: 25px;
+  text-transform: capitalize;
 }
+
 .header_left,
 .header_right {
-    /* width: 25%; */
+  display: flex;
+  align-items: center;
+}
+
+/* ✅ 토글 버튼: 헤더 내부 좌상단 */
+.theme-toggle {
+  position: absolute;
+  left: 100px;
+  z-index: 10;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #e0e0e0;
+  font-size: 18px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+  background: #ccc;
+  transform: scale(1.1);
 }

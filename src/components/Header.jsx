@@ -1,11 +1,18 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import "./Header.css"
-const Header = ({title, leftchild, rightchild}) => {
+import { ThemeContext } from "../App"
+
+const Header = ({ title, leftChild, rightChild }) => {
+  const { theme, toggleTheme } = useContext(ThemeContext)
+
   return (
     <header className='Header'>
-        <div className="header_left">{leftchild}</div>
-        <div className="header_center">{title}</div>
-        <div className="header_right">{rightchild}</div>
+      <button className="theme-toggle" onClick={toggleTheme}>
+        {theme === "light" ? "🌙" : "☀️"}
+      </button>
+      <div className="header_left">{leftChild}</div>
+      <div className="header_center">{title}</div>
+      <div className="header_right">{rightChild}</div>
     </header>
   )
 }
